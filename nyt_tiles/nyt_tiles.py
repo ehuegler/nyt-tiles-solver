@@ -27,19 +27,16 @@ class NytTiles:
 
     # Get this thang going
     def __initialize_gameboard(self):
-        if hasattr(self, "game_board"):
-            raise Exception("Game board can only be initialized once!")
-        
-        self.game_board: list[list[list]] = [[[None] * self.layers] * self.size.y] * self.size.x
+        self.game_board: list[list[list]] = [[[None for _ in range(self.layers)] for _ in range(self.size.y)] for _ in range(self.size.x)]
 
         for layer in range(0, self.layers):
             coordinates = [ Coord(x, y) for x in range(self.size.x) for y in range(self.size.y)]
             while (len(coordinates) > 0):
                 pattern = self.palette.get_rand_pattern_for_layer(layer, self.rng)
-                self._set_tile(util.pop_random(coordinates, self.rng), layer, pattern)
-                self._set_tile(util.pop_random(coordinates, self.rng), layer, pattern)
+                self._set_tile_layer(util.pop_random(coordinates, self.rng), layer, pattern)
+                self._set_tile_layer(util.pop_random(coordinates, self.rng), layer, pattern)
 
 
-    def _set_tile(self, coord: Coord, layer: int, value: int):
+    def _set_tile_layer(self, coord: Coord, layer: int, value: int):
         self.game_board[coord.x][coord.y][layer] = value
         

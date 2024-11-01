@@ -10,7 +10,8 @@ class Palette:
         self.layer_sizes = layer_sizes
 
     def get_rand_pattern_for_layer(self, layer:int, rng: Random) -> int:
-        return rng.randint(0, self.layer_sizes[layer])
+        print(rng.randint(0, self.layer_sizes[layer] - 1))
+        return rng.randint(0, self.layer_sizes[layer] - 1)
 
 default_palette = Palette((5, 5, 5))
     
