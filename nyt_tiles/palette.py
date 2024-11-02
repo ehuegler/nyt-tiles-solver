@@ -6,7 +6,9 @@ class Palette():
     texture_map: list[list[pygame.Surface]]
 
     def get_surface(self, tile: list) -> pygame.Surface:
-        surface = None
+        surface: pygame.Surface = pygame.Surface((60, 60))
+        surface.fill((255, 255, 255))
+        surface.set_colorkey((255, 255, 255))
         for layer_num, layer_idx  in enumerate(tile):
             if layer_idx is not None:
                 # find a way to add self.texture_map[layer_num][layer_idx]
@@ -28,7 +30,7 @@ def default_texture_map(box_size: int) -> list[list[pygame.Surface]]:
             pygame.Color(255, 0, 0),
             pygame.Color(0, 255, 0),
             pygame.Color(0, 0, 255),
-            pygame.Color(255, 255, 255),
+            pygame.Color(240, 240, 240),
     ]
     return squares_texture_map(box_size, colors=[colors, colors, colors])
 
