@@ -1,4 +1,4 @@
-import gamestate
+from gamestate import *
 import palette
 import pygame
 from pygame.locals import *
@@ -18,9 +18,9 @@ class App:
         self._display_surf = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self._running = True
 
-        self.gamestate: gamestate.Gamestate = gamestate.new_default_board()
+        # self.gamestate: gamestate.Gamestate = gamestate.new_default_board()
         self.palette: palette.Palette = palette.default_palette(BOX_SIZE)
-        self.tile_rects: dict = {}
+        self.set_game_state(new_default_board())
  
     def on_event(self, event):
         if event.type == pygame.QUIT:
@@ -29,7 +29,7 @@ class App:
             for tile, rect in self.tile_rects.items():
                 if (rect.collidepoint(event.pos)):
                     print(f'Clicked {tile}')
-                    self.gamestate = gamestate.take_action(self.gamestate, tile)
+                    self.set_game_state(take_action(self.gamestate, tile))
     def on_loop(self):
         pass
     def on_render(self):
@@ -50,27 +50,30 @@ class App:
             self.on_loop()
             self.on_render()
         self.on_cleanup()
+
+    def set_game_state(self, gamestate: Gamestate):
+        if gamestate is None:
+            return
+
+        self.tile_rects = {}
+        self.tile_surfs = {}
+        for x in range(gamestate.width()):
+            for y in range(gamestate.height()):
+                tile_surface = self.palette.get_surface(gamestate.board[x][y])
+                if tile_surface is not None:
+                    self.tile_rects[Coord(x, y)] = tile_surface.get_rect(topleft=(x * BOX_SIZE, y * BOX_SIZE))
+                    self.tile_surfs[Coord(x, y)] = tile_surface
+        self.gamestate = gamestate
     
     def draw_game_board(self) -> None:
-        # draw all tiles as is
-        self.tile_rects = {} #TODO do something more effecient here. Only need to redraw on clicks
-        for x in range(self.gamestate.width()):
-            for y in range(self.gamestate.height()):
-                tile_surface = self.palette.get_surface(self.gamestate.board[x][y])
-                if tile_surface is not None:
-                    yyy = y * BOX_SIZE
-                    xxx = x * BOX_SIZE
-                    self.tile_rects[gamestate.Coord(x, y)] = tile_surface.get_rect(topleft=(xxx, yyy))
-                    self._display_surf.blit(tile_surface, (xxx, yyy))
+        # draw tiles
+        for rect, surf in zip(self.tile_rects.values(), self.tile_surfs.values()):
+            self._display_surf.blit(surf, rect)
 
         # draw current selection
-        if self.gamestate.selection is not None:
-            coord = self.gamestate.selection
-            pygame.draw.rect(self._display_surf, 
-                             SELECTION_OUTLINE_COLOR, 
-                             (coord.x * BOX_SIZE, coord.y * BOX_SIZE, BOX_SIZE, BOX_SIZE),
-                             4)
-            pass
+        coord = self.gamestate.selection
+        if coord is not None:
+            pygame.draw.rect(self._display_surf, SELECTION_OUTLINE_COLOR, self.tile_rects[coord], 4)
             
  
 if __name__ == "__main__" :
